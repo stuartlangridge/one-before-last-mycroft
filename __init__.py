@@ -58,7 +58,7 @@ class OneBeforeLastSkill(MycroftSkill):
             self.question_index += 1
             self.answer_index += 1
             if self.question_index == len(self.questions):
-                self.speak_dialog("final.answer")
+                self.speak_dialog("final.answer", expect_response=True)
             elif self.question_index > len(self.questions):
                 self.play_sound("win.mp3")
                 self.speak_dialog("complete")
