@@ -7,6 +7,8 @@ from mycroft.skills.audioservice import AudioService
 from mycroft import adds_context
 from mycroft.util.log import LOG
 import os, json, random
+import sys
+sys.path.append(os.path.split(__file__)[0])
 import MycroftDisplay.utils, MycroftDisplay.Mark1
 
 GRID = MycroftDisplay.utils.normalise_grid("""
