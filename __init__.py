@@ -7,6 +7,29 @@ from mycroft.skills.audioservice import AudioService
 from mycroft import adds_context
 from mycroft.util.log import LOG
 import os, json, random
+import MycroftDisplay.utils, MycroftDisplay.Mark1
+
+GRID = MycroftDisplay.utils.normalise_grid("""
+
+        .##.........................##..
+        ##..#.#.#.#.#.#.#.#.#.#.#.#..##.
+        .##.........................##..
+        ................................
+        ................................
+        ................................
+        ................................
+        ................................
+""")
+
+CROSS = MycroftDisplay.utils.normalise_grid("""
+
+        #######
+        #..#..#
+        ##...##
+        #..#..#
+        #######
+""")
+
 
 class OneBeforeLastSkill(MycroftSkill):
     def __init__(self):
@@ -17,6 +40,7 @@ class OneBeforeLastSkill(MycroftSkill):
 
     def initialize(self):
         self.audio_service = AudioService(self.emitter)
+        self.set_visual()
 
     @intent_handler(IntentBuilder("StartupIntent").require("Startup"))
     @adds_context("IsPlaying")
@@ -55,6 +79,7 @@ class OneBeforeLastSkill(MycroftSkill):
             # correct!
             self.play_sound("correct.mp3")
             self.speak_dialog("correct")
+            self.set_visual()
             self.question_index += 1
             self.answer_index += 1
             if self.question_index == len(self.questions):
@@ -69,6 +94,7 @@ class OneBeforeLastSkill(MycroftSkill):
         else:
             # wrong!
             self.wrong += 1
+            self.set_visual()
             if self.wrong == 3:
                 self.fail()
                 return
@@ -92,6 +118,15 @@ class OneBeforeLastSkill(MycroftSkill):
     def stop(self):
         self.stop_requested = True
         return False
+
+    def set_visual(self):
+        g = GRID[:]
+        for i in range(self.answer_index):
+            g = MycroftDisplay.utils.insert_grid(g, "#", 4+(i*2), 1)
+        for i in range(self.wrong):
+            g = MycroftDisplay.utils.insert_grid(g, CROSS, 4+(i*8), 3)
+        for img_code, x, y in MycroftDisplay.Mark1.from_large_grid(g):
+            self.enclosure.mouth_display(img_code=img_code, x=x, y=y)
 
 
 def create_skill():
